@@ -55,12 +55,12 @@ def record(key):
                     data = pickle.dumps(data)
 
                     send_length = str(len(data)).encode('utf-8')
-                    # print("\x1b[31mSENDLENGTH\x1b[0m", len(send_length))
+                    print(f"\x1b[31mSending {send_length} bytes\x1b[0m")
                     send_length = b' '*(PAYLOAD_BITS-len(send_length)) + send_length
                     message = send_length+data
-                    with open("file.bin", "ab") as file:
-                        file.write(data)
-                    client.send(message)
+                    print(f"\x1b[31mSending message: {message}\x1b[0m")
+                    client.sendall(message)
+
         elif(key.char == 'x'):
             print("DISCONNECTING")
             data = pickle.dumps(DISCONNECT_MESSAGE)
@@ -95,14 +95,13 @@ def listenToServer():
         try:
             data += client.recv(HEADER)
             msg_length = int(data[:PAYLOAD_BITS])
-            # print(f"\x1b[32mMESSAGE LENGTH: {msg_length}\x1b[0m")
             data = data[PAYLOAD_BITS:]
-            # print(f"\x1b[32mRECIEVER CLIENT SIDE: {msg_length}\x1b[0m")
             while len(data)<msg_length:
                 data += client.recv(HEADER)
 
             sample = pickle.loads(data)
             data = data[msg_length:]
+            print(f"\x1b[32mReceived Message: {sample}\x1b[0m")
             output_stream.write(sample)
         except ValueError:
             print(f"DATA RECIEVED IS {data}")
